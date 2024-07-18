@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 // Add custom column to post list
 function nq_add_noindex_column($columns) {
-    $columns['noindex'] = 'Noindex';
+    $columns['noindex'] = 'Index Allow';
     return $columns;
 }
 add_filter('manage_posts_columns', 'nq_add_noindex_column');
@@ -38,16 +38,19 @@ add_action('manage_posts_custom_column', 'nq_show_noindex_column', 10, 2);
 
 // Add Quick Edit field
 function nq_add_noindex_quick_edit($column_name, $post_type) {
+    global $post;
     if ($column_name !== 'noindex') {
         return;
     }
+    $post_id = isset($post->ID) ? $post->ID : 0;
+    $noindex = get_post_meta($post_id, '_noindex', true);
     ?>
     <fieldset class="inline-edit-col-right inline-edit-noindex">
         <div class="inline-edit-col">
             <label class="alignleft">
-                <span class="title">Noindex</span>
+                <span class="title">Index Allow</span>
                 <span class="input-text-wrap">
-                    <input type="checkbox" name="noindex" value="1">
+                    <input type="checkbox" name="noindex" value="1" <?php checked($noindex, '1'); ?>>
                 </span>
             </label>
         </div>
@@ -55,6 +58,8 @@ function nq_add_noindex_quick_edit($column_name, $post_type) {
     <?php
 }
 add_action('quick_edit_custom_box', 'nq_add_noindex_quick_edit', 10, 2);
+
+
 
 // Enqueue JavaScript for Quick Edit
 function nq_enqueue_quick_edit_noindex_script($hook) {
